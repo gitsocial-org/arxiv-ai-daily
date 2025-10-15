@@ -1,0 +1,33 @@
+name: Daily arXiv AI Papers
+
+on:
+  schedule:
+    - cron: '0 1 * * 0-4'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  post-arxiv-papers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure git
+        run: |
+          git config user.name "arXiv AI Bot"
+          git config user.email "bot@gitsocial.org"
+
+      - name: Fetch and commit arXiv AI papers
+        run: ./scripts/commit.sh
+
+      - name: Push changes
+        run: git push origin main

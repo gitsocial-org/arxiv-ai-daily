@@ -1,0 +1,28 @@
+{
+  "name": "arxiv-ai-daily",
+  "version": "1.0.0",
+  "description": "Automated GitSocial bot posting daily arXiv Artificial Intelligence papers",
+  "type": "module",
+  "scripts": {
+    "fetch": "node scripts/fetch.js",
+    "test": "node scripts/fetch.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gitsocial-org/arxiv-ai-daily.git"
+  },
+  "keywords": [
+    "arxiv",
+    "artificial-intelligence",
+    "ai",
+    "papers",
+    "research",
+    "gitsocial",
+    "bot"
+  ],
+  "author": "GitSocial",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
