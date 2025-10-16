@@ -27,7 +27,7 @@ trap "rm -f \"$TEMP_JSON\"" EXIT
 
 echo "Fetching arXiv AI papers for $COMMIT_DATE..."
 
-if ! node "$SCRIPT_DIR/fetch.js" "$DATE_ARG" > "$TEMP_JSON" 2>&1; then
+if ! node "$SCRIPT_DIR/fetch.js" "$COMMIT_DATE" > "$TEMP_JSON" 2>&1; then
   echo "Error: fetch.js failed" >&2
   cat "$TEMP_JSON" >&2
   exit 1
