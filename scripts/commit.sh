@@ -54,13 +54,19 @@ if [ "$PAPER_COUNT" -eq 0 ]; then
   exit 0
 fi
 
-echo "Found $PAPER_COUNT papers. Creating commits..."
+echo "Found $PAPER_COUNT papers. Checking for existing papers in last 14 days..."
 
-TEMP_JSON="$TEMP_JSON" node -e "
+EXISTING_IDS=$(git log --since="14 days ago" --all --grep="^arXiv: " --format="%B" | grep "^arXiv: " | sed 's/arXiv: //' | sort -u | tr '\n' ',')
+
+TEMP_JSON="$TEMP_JSON" EXISTING_IDS="$EXISTING_IDS" node -e "
 const papers = JSON.parse(require('fs').readFileSync(process.env.TEMP_JSON, 'utf-8'));
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+
+const existingIds = new Set(
+  (process.env.EXISTING_IDS || '').split(',').filter(Boolean)
+);
 
 function formatAuthors(authors) {
   if (authors.length === 0) return '';
@@ -94,10 +100,17 @@ function formatCommitMessage(paper) {
 }
 
 let successCount = 0;
+let skippedCount = 0;
 let errorCount = 0;
 
 for (const paper of papers) {
   try {
+    if (existingIds.has(paper.arxivId)) {
+      console.log(\`Already exists: \${paper.arxivId}\`);
+      skippedCount++;
+      continue;
+    }
+
     const commitMessage = formatCommitMessage(paper);
     const commitDate = paper.published;
 
@@ -120,6 +133,9 @@ for (const paper of papers) {
 }
 
 console.log(\`\\nSuccessfully created \${successCount} commits for \${papers[0].published.split('T')[0]}\`);
+if (skippedCount > 0) {
+  console.log(\`Skipped \${skippedCount} existing papers\`);
+}
 if (errorCount > 0) {
   console.log(\`Failed to create \${errorCount} commits\`);
   process.exit(1);
