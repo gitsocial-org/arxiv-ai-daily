@@ -127,7 +127,8 @@ async function fetchArxivPapers() {
 
     if (papers.length === 0) {
       console.error(`No papers found for date: ${dateStr}`);
-      return 1;
+      console.log('[]');
+      return 0;
     }
 
     console.log(JSON.stringify(papers, null, 2));
