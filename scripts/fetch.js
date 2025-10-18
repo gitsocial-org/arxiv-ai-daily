@@ -126,7 +126,6 @@ async function fetchArxivPapers() {
     }
 
     if (papers.length === 0) {
-      console.error(`No papers found for date: ${dateStr}`);
       console.log('[]');
       return 0;
     }
