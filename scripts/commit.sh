@@ -45,7 +45,7 @@ console.log(data.length);
 ")
 
 if [ "$PAPER_COUNT" -eq 0 ]; then
-  echo "No papers found for $COMMIT_DATE"
+  echo "No new papers to commit"
   exit 0
 fi
 
