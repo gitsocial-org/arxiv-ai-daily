@@ -5,32 +5,27 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DATE_ARG="${1:-}"
 
+TEMP_JSON=$(mktemp)
+trap "rm -f \"$TEMP_JSON\"" EXIT
+
 if [ -n "$DATE_ARG" ]; then
   if ! [[ "$DATE_ARG" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
     echo "Error: Invalid date format. Use YYYY-MM-DD" >&2
     exit 1
   fi
-  COMMIT_DATE="$DATE_ARG"
-else
-  # Default to yesterday since arXiv papers are announced at 20:00 ET (00:00-01:00 UTC next day)
-  if date -v-1d >/dev/null 2>&1; then
-    # macOS
-    COMMIT_DATE=$(date -v-1d +%Y-%m-%d)
-  else
-    # Linux
-    COMMIT_DATE=$(date -d "yesterday" +%Y-%m-%d)
+  echo "Fetching arXiv AI papers for $DATE_ARG..."
+  if ! node "$SCRIPT_DIR/fetch.js" "$DATE_ARG" > "$TEMP_JSON" 2>&1; then
+    echo "Error: fetch.js failed" >&2
+    cat "$TEMP_JSON" >&2
+    exit 1
   fi
-fi
-
-TEMP_JSON=$(mktemp)
-trap "rm -f \"$TEMP_JSON\"" EXIT
-
-echo "Fetching arXiv AI papers for $COMMIT_DATE..."
-
-if ! node "$SCRIPT_DIR/fetch.js" "$COMMIT_DATE" > "$TEMP_JSON" 2>&1; then
-  echo "Error: fetch.js failed" >&2
-  cat "$TEMP_JSON" >&2
-  exit 1
+else
+  echo "Auto-detecting missing dates and fetching papers..."
+  if ! node "$SCRIPT_DIR/fetch.js" > "$TEMP_JSON" 2>&1; then
+    echo "Error: fetch.js failed" >&2
+    cat "$TEMP_JSON" >&2
+    exit 1
+  fi
 fi
 
 if [ ! -s "$TEMP_JSON" ]; then
@@ -132,7 +127,9 @@ for (const paper of papers) {
   }
 }
 
-console.log(\`\\nSuccessfully created \${successCount} commits for \${papers[0].published.split('T')[0]}\`);
+const dates = [...new Set(papers.map(p => p.published.split('T')[0]))].sort();
+const dateStr = dates.length === 1 ? dates[0] : \`\${dates.length} dates (\${dates[0]} to \${dates[dates.length-1]})\`;
+console.log(\`\\nSuccessfully created \${successCount} commits for \${dateStr}\`);
 if (skippedCount > 0) {
   console.log(\`Skipped \${skippedCount} existing papers\`);
 }
