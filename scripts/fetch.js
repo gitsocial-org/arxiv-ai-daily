@@ -84,9 +84,12 @@ function parseEntry(entryXml) {
 
 function getLastCommitDate() {
   try {
-    const log = execSync('git log --format=%s --grep="^[A-Z]" -1', { encoding: 'utf-8' });
-    const dateMatch = log.match(/\d{4}-\d{2}-\d{2}/);
-    return dateMatch ? dateMatch[0] : null;
+    const log = execSync('git log --format=%cd --date=format:%Y-%m-%d --author="arXiv AI Bot" -1', { encoding: 'utf-8' });
+    const dateStr = log.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return dateStr;
+    }
+    return null;
   } catch {
     return null;
   }
