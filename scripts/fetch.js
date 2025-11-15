@@ -206,20 +206,21 @@ async function main() {
     }
     const allPapers = [];
     let hasErrors = false;
+    const verbose = dates.length > 1;
     for (const dateStr of dates) {
       try {
         const papers = await fetchPapersForDate(dateStr);
         if (papers.length > 0) {
-          console.error(`Fetched ${papers.length} papers for ${dateStr}`);
+          if (verbose) console.error(`Fetched ${papers.length} papers for ${dateStr}`);
           allPapers.push(...papers);
         } else {
-          console.error(`No papers found for ${dateStr}`);
+          if (verbose) console.error(`No papers found for ${dateStr}`);
         }
         if (dates.length > 1) {
           await sleep(1000);
         }
       } catch (error) {
-        console.error(`Failed to fetch papers for ${dateStr}: ${error.message}`);
+        if (verbose) console.error(`Failed to fetch papers for ${dateStr}: ${error.message}`);
         hasErrors = true;
       }
     }
