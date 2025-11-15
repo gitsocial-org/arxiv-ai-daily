@@ -14,14 +14,14 @@ if [ -n "$DATE_ARG" ]; then
     exit 1
   fi
   echo "Fetching arXiv AI papers for $DATE_ARG..."
-  if ! node "$SCRIPT_DIR/fetch.js" "$DATE_ARG" > "$TEMP_JSON" 2>&1; then
+  if ! node "$SCRIPT_DIR/fetch.js" "$DATE_ARG" > "$TEMP_JSON"; then
     echo "Error: fetch.js failed" >&2
     cat "$TEMP_JSON" >&2
     exit 1
   fi
 else
   echo "Auto-detecting missing dates and fetching papers..."
-  if ! node "$SCRIPT_DIR/fetch.js" > "$TEMP_JSON" 2>&1; then
+  if ! node "$SCRIPT_DIR/fetch.js" > "$TEMP_JSON"; then
     echo "Error: fetch.js failed" >&2
     cat "$TEMP_JSON" >&2
     exit 1
